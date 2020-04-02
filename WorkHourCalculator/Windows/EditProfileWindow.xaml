@@ -1,0 +1,31 @@
+﻿<Window x:Class="WorkHourCalculator.Windows.EditProfileWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WorkHourCalculator.Windows"
+        mc:Ignorable="d"
+        Title="Work Hour Calculator - Profiles" SizeToContent="Height" MinWidth="300">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <Button Margin="5" Click="AddNewProfile_Click">Add new profile</Button>
+
+        <ComboBox Grid.Row="1" Margin="5" ItemsSource="{Binding Profiles}" DisplayMemberPath="Name" SelectedValuePath="Name" SelectedValue="{Binding CurrentProfile}"></ComboBox>
+
+        <TextBox Grid.Row="2" Margin="5" Text="{Binding CurrentProfile.Name}"></TextBox>
+
+        <DockPanel Grid.Row="3" HorizontalAlignment="Right">
+            <Button Width="100" Margin="5" Click="SelectAccount_Click">Select account</Button>
+            <Button Width="50" Margin="5" Click="Save_Click">Save</Button>
+        </DockPanel>
+    </Grid>
+</Window>
