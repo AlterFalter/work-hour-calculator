@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Windows;
 using WorkHourCalculator.Models;
+using WorkHourCalculator.ViewModels;
 
 namespace WorkHourCalculator.Windows
 {
@@ -9,48 +10,39 @@ namespace WorkHourCalculator.Windows
     /// </summary>
     public partial class EditProfileWindow : Window
     {
-        private Account account;
+        private readonly EditProfileViewModel editProfileViewModel;
 
-        public EditProfileWindow()
+        public EditProfileWindow(Account account)
         {
             InitializeComponent();
-            account = Account.Load();
+            this.editProfileViewModel = new EditProfileViewModel(account);
+            DataContext = this.editProfileViewModel;
         }
 
-        private void AddNewProfile_Click(object sender, RoutedEventArgs e)
+        private void Cancel_Click(object sender, RoutedEventArgs e)
         {
-            string freename = "work";
-            if (!IsProfileNameFree(freename))
-            {
-                for (int i = 2; i < int.MaxValue; i++)
-                {
-                    string possibleFreename = $"{freename}_{i}";
-                    if (IsProfileNameFree(possibleFreename))
-                    {
-                        freename = possibleFreename;
-                        break;
-                    }
-                }
-            }
-            this.account.Profiles.Add(new Profile(freename));
-        }
-
-        private bool IsProfileNameFree(string profilename)
-        {
-            return this.account.Profiles.Any(p => p.Name == profilename);
-        }
-
-        private void SelectAccount_Click(object sender, RoutedEventArgs e)
-        {
-            this.account.Save();
-            LoadingWindow loadingWindow = new LoadingWindow();
-            loadingWindow.Show();
-            this.Close();
+            this.ShowProfileOverviewWindow();
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            this.account.Save();
+            if (this.editProfileViewModel.UpdateName())
+            {
+                this.editProfileViewModel.Account.Save();
+                this.ShowProfileOverviewWindow();
+            }
+            else
+            {
+                MessageBox.Show("This name already exists!", "Every name can only exist once per account", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void ShowProfileOverviewWindow()
+        {
+            ProfileOverviewWindow profileOverviewWindow = new ProfileOverviewWindow(this.editProfileViewModel.Account, this.editProfileViewModel.Account.CurrentProfile);
+            profileOverviewWindow.Show();
+
+            this.Close();
         }
     }
 }
