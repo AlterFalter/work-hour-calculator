@@ -6,29 +6,15 @@ using WorkHourCalculator.Models;
 namespace WorkHourCalculator.Windows
 {
     /// <summary>
-    /// Interaction logic for LoadingWindow.xaml
+    /// Interaction logic for LoadAccountWindow.xaml
     /// </summary>
-    public partial class LoadingWindow : Window
+    public partial class LoadAccountWindow : Window
     {
-        private Account account;
-
-        private string Filepath
-        {
-            get
-            {
-                return Configuration.ReadField(nameof(Filepath));
-            }
-            set
-            {
-                Configuration.AddOrSetField(nameof(Filepath), value);
-            }
-        }
-
-        public LoadingWindow()
+        public LoadAccountWindow()
         {
             InitializeComponent();
-            account = new Account();
-            DataContext = account;
+            this.Filepath.Text = WindowsUserConfiguration.Instance.LastUsedFilepath;
+            this.LoadButton.IsEnabled = File.Exists(this.Filepath.Text);
         }
 
         private void OpenFileExplorer_Click(object sender, RoutedEventArgs e)
@@ -39,21 +25,22 @@ namespace WorkHourCalculator.Windows
             bool result = fileDialog.ShowDialog() == true;
             if (result)
             {
-                string filepath = fileDialog.FileName;
-                if (!File.Exists(filepath))
+                this.Filepath.Text = fileDialog.FileName;
+                if (!File.Exists(this.Filepath.Text))
                 {
                     ErrorLabel.Content = "Path doesn't exist yet or can't be accessed. Please specify a valid path or create a new account with the button underneath.";
+                }
+                else
+                {
+                    LoadButton.IsEnabled = true;
                 }
             }
         }
 
         private void CreateAccount_Click(object sender, RoutedEventArgs e)
         {
-            this.account.Profiles.Add(new Profile("Work"));
-            SaveAccountFilepath();
-
-            EditProfileWindow editProfileWindow = new EditProfileWindow();
-            editProfileWindow.Show();
+            CreateAccountWindow createAccountWindow = new CreateAccountWindow();
+            createAccountWindow.Show();
 
             this.Close();
         }
@@ -62,10 +49,10 @@ namespace WorkHourCalculator.Windows
         {
             try
             {
-                this.account.Load();
-                SaveAccountFilepath();
-                
-                MainWindow mainWindow = new MainWindow(this.account);
+                Account account = new Account(this.Filepath.Text);
+                WindowsUserConfiguration.Instance.LastUsedFilepath = account.Filepath;
+
+                MainWindow mainWindow = new MainWindow(account);
                 mainWindow.Show();
 
                 this.Close();
@@ -74,11 +61,6 @@ namespace WorkHourCalculator.Windows
             {
                 ErrorLabel.Content = ex.Message;
             }
-        }
-
-        private void SaveAccountFilepath()
-        {
-
         }
     }
 }
